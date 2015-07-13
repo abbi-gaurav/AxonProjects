@@ -1,0 +1,23 @@
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
+
+
+#play
+app-2.11
+test-2.11
+project/project
+logs
+.idea
+project/target
