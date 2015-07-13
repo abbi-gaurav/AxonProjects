@@ -1,0 +1,80 @@
+* cqrs principle
+** Instead of separating logic into separate layers, logic is separated based on whether it is changing an application's state or querying it.
+* gurantees
+** delivering events to the right event listeners and processing them concurrently and in the correct order
+** Duplicate data is no longer an issue, since events are published when data changes. :doubt:
+* threads management
+** Axon abstracts all asynchronous behavior by using Executors, meaning that you can easily pass a container managed Thread Pool, for example
+* contact for doubts
+** axonframework@googlegroups.com
+** [[http://www.axonframework.org/issues][log a bug]]
+* command handling
+** Command Bus receives commands and routes them to the Command Handlers
+** command gateway
+*** default
+*** You can turn almost any interface into a Command Gateway using the GatewayProxyFactory
+**** strong typing and business exceptions
+**** using code
+**** using spring
+*** configuration
+**** command bus
+***** commands ----> command handler
+***** always have 1 -> 1 mapping
+***** sync and asynchronous versions
+***** simplecommandbus
+***** dispatchcommandbus (perf tuning)
+***** can bind a Transaction manager
+***** distributing the command bus
+****** DistributedCommandBus
+******* CommandBusConnector(JGroupsConnector)
+******** JGroupsConnectorFactoryBean with spring
+******* RoutingStrategy (MetaDataRoutingStrategy | AnnotationRoutingStrategy [uses @TargetAggregateIdentifier])
+****** axon-distributed-commandbus maven
+**** optional
+***** retry scheduler                                          :optional:
+****** only retries for Runtime exceptions
+***** CommandDispatchInterceptors
+****** before sending to command bus
+***** CommandCallbacks
+****** for each command sent
+** command handlers
+*** do not user server-generated ids
+*** prefer fire and forget approach
+*** using spring and annotations
+**** <axon:annotation-config/>
+*** AggregateAnnotationCommandHandler
+**** When a command creates an aggregate instance, the callback for that command will receive the aggregate identifier when the command executed successfully.
+**** using spring <axon:aggregate-command-handler/>
+***** element in your application context to create a Command Handler that delegates commands to an aggregate instance. It will also be automatically subscribed to the CommandBus.
+**** @CommandHandlingMember
+***** for having commandhandler annotation in the delegator or member entities
+** command interceptors
+*** Command Dispatch Interceptors, can be used for
+**** structural validation
+**** BeanValidationInterceptor, JSR 303 Bean validation
+*** Command Handler Interceptors
+* Domain modelling 
+** The command handler retrieves domain objects (Aggregates) from a repository and executes methods on them to change their state.
+** state change results in domain events
+** domain model = aggregates + domain events
+* repositories
+** access to aggregates by a unique identifier based lookup
+** also backup changes
+* event bus
+** event bus dispatches events to all event listeners
+** synchronous and asynchronous
+** event handlers
+*** update data source used for querying
+*** do other actions
+*** send new commands
+* querying for data
+** thin data layer
+** table per view principle
+* modules
+** core
+** axon test
+** Axon Distributed CommandBus
+** Axon AMQP (Advanced Message Queuing Protocol)
+** Axon Mongo
+* notes
+** *Aggregates are domain objects*
