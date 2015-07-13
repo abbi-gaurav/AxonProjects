@@ -57,16 +57,56 @@
 ** The command handler retrieves domain objects (Aggregates) from a repository and executes methods on them to change their state.
 ** state change results in domain events
 ** domain model = aggregates + domain events
+** DomainEventMessage
+*** raised by an aggregate
+*** contains the identifier of the aggregate also
+*** sequence number
+** prefer immutable domain events
+** abstrcat to capture the fact and the concrete to capture the type of state change for the event
+** aggregate
+*** An Aggregate is an entity or group of entities that is always kept in a consistent state
+*** always do changes via the root aggregate
+*** AbstractAnnotatedAggregateRoot
+*** Event sourced aggregates
+*** the requirement is that the identifier is set when the first event is applied or registered with the aggregate. Axon needs that identifier to attach it to the event. :important:
+** live and historic events
 * repositories
 ** access to aggregates by a unique identifier based lookup
 ** also backup changes
-* event bus
+** two types
+*** Standard repositories : save current state of aggregate
+**** event ordering
+***** no gurantee in optimistic locking
+***** must use pessimistic locking strategy
+*** Even Sourcing Repositories: save events of the aggregate
+**** uses the concept of Event Store
+** event store
+*** serializer xml and json
+*** MongoDB Event Store : axon-mongo
+**** StorageStrategy: how events are stored in documents (default each event in a separate document) other: DocumentPerCommitStorageStrategy
+* event processing and event bus
 ** event bus dispatches events to all event listeners
 ** synchronous and asynchronous
 ** event handlers
 *** update data source used for querying
 *** do other actions
 *** send new commands
+** types
+*** simple
+*** clustering
+**** for spring : <axon:cluster>
+**** event bus terminal (e.g using AMQP)
+***** forms the bridge between the Clusters inside the Event Bus
+**** event listeners
+***** Event Listeners that require information managed by another Listener should be in the same cluster
+***** Order resolver
+***** Annotated Event Handler
+***** *one event handler method is invoked per listener instance.*
+**** event processing
+***** Asynchronous Event Processing
+***** you can place a Spring <bean> element inside the <axon:cluster>
+***** specify the bean configuration of an AsynchronousCluster implementation to make a Cluster asynchronous.
+****** concurrency policies
 * querying for data
 ** thin data layer
 ** table per view principle
